@@ -13,7 +13,7 @@
     \usepackage[T1]{fontenc}
     \usepackage[utf8]{inputenc}
 \fi
-
+\usepackage{cite}
 % some very useful LaTeX packages include:
 %\usepackage{cite}      % Written by Donald Arseneau
                         % V1.6 and later of IEEEtran pre-defines the format
@@ -103,7 +103,7 @@
                         % midfloat.sty package (by the same author) as IEEE
                         % does not format its papers in such ways.
 
-%\usepackage{amsmath}   % From the American Mathematical Society
+\usepackage{amsmath}   % From the American Mathematical Society
                         % A popular package that provides many helpful commands
                         % for dealing with mathematics. Note that the AMSmath
                         % package sets \interdisplaylinepenalty to 10000 thus
@@ -159,13 +159,13 @@ Keep in mind that he does not known the work yet.
 % Each section begins with a \section{title} command
 \section{Introduction}
 % \IEEEPARstart{}{} creates a tall first letter for this first paragraph
-\IEEEPARstart{I}{n} In light of the IoT era the world has seen a spike in the number of smart devices deployed in the market. These ubiquitous smart devices can be found anywhere, from toasters to cars. While they bring a lot of advantages to the table they add a profound amount of concern regarding security and privacy. The most prominent security concern includes counterfeit or tampered hardware. [cite dem all]
+\IEEEPARstart{I}{n} In light of the IoT era the world has seen a spike in the number of smart devices deployed in the market. These ubiquitous smart devices can be found anywhere, from toasters to cars. While they bring a lot of advantages to the table they add a profound amount of concern regarding security and privacy. \cite{EMVT12} The most prominent security concern includes counterfeit or tampered hardware. \cite{PEC06} 
 
 Mitigating these security risks requires hardware-intrinsic security mechanisms that support authentication and identification of the device. A known solution requires cryptographic keys to be burned in at manufacturing time and then later used in symmetric/asymmetric protocols for authentication. Although this approach is susceptible to key extraction attacks giving way to cloning. Thus, Physically Unclonable Functions have been proposed as a solution to this issue.
 
 PUFs by definition are unclonable and also because they exploit the process variations of manufacturing to form a hardware-based fingerprint. This hardware based fingerprint with a supporting lightweight protocol can then be used for authentication. Clearly, it is very important for the PUF instance to be intrinsic to the hardware that needs to be authenticated. The intrinsic nature can be assured either by addition of dedicated circuits or by using PUFs inherent to the device. Since the latter adds costs to the manufacturing process, inherent and intrinsic PUFs are much preferred. DRAM based PUFs are such a class of PUFs, because they can be found in almost all COTS devices.
 
-This paper briefly touches on the basics of PUFs and dives into how DRAMs are used as PUF instances in the Theory section. Through means of survey it presents different types of authentication mechanisms used in conjunction with DRAM based PUFs ([add section details here]). Finally, it also presents the main implementation objectives accompanied by a summary of metrics by means of survey.
+This paper briefly touches on the basics of PUFs and dives into how DRAMs are used as PUF instances in the Theory section. Through means of survey it presents different types of authentication mechanisms used in conjunction with DRAM based PUFs. Finally, it also presents the main implementation objectives accompanied by a summary of metrics by means of survey.
 
 \section{Theory}
 This sections goes into the basics of PUFs and workings of DRAM PUFs.
@@ -177,7 +177,7 @@ In practice most PUFs are characterized by challenges and responses. A challenge
     % Center the figure.
     \begin{center}
     % Include the eps file, scale it such that it's width equals the column width. You can also put width=8cm for example...
-    \includegraphics[width=\columnwidth]{figs/plot_tf.eps}
+    \includegraphics[scale=0.5]{figs/PUF.png}
     % Create a subtitle for the figure.
     \caption{PUFS}
     % Define the label of the figure. It's good to use 'fig:title', so you know that the label belongs to a figure.
@@ -190,64 +190,63 @@ PUFs are mainly categorized into strong PUFs and weak PUFs based on the number o
 \subsection{DRAM PUFs}
 There are different methods in which the process variations of DRAM can be leveraged and they are explained below:
 
-\textbf{Startup:} In this method, the startup state of the DRAM is used for unique fingerprinting. As mentioned in [tehranipoor] “DRAMs have seemingly random startup values”. This is because the bitlines on DRAM are precharged to vdd/2 which makes the sense amplifier equally likely to read a ‘1’ or ‘0’. But, due to the process variations of manufacturing most bits have either a bias towards a ‘1’ or a ‘0’. Hence, the startup values of the DRAM are randomized by the random process variations. It is noted though that some bits have a neutral skew/bias i.e. they randomly switch to ‘1’ or ‘0’ over multiple startups. These bits can be used for random number generation. This method is not suitable for authentication using the traditional CRP database approach, because startup values cannot be varied by writing the challenge to memory before startup.
+\textbf{Startup:} In this method, the startup state of the DRAM is used for unique fingerprinting. As mentioned by Tehranipoor et al. “DRAMs have seemingly random startup values”. This is because the bitlines on DRAM are precharged to vdd/2 which makes the sense amplifier equally likely to read a ‘1’ or ‘0’. But, due to the process variations of manufacturing most bits have either a bias towards a ‘1’ or a ‘0’. Hence, the startup values of the DRAM are randomized by the random process variations. It is noted though that some bits have a neutral skew/bias i.e. they randomly switch to ‘1’ or ‘0’ over multiple startups. These bits can be used for random number generation. This method is not suitable for authentication using the traditional CRP database approach, because startup values cannot be varied by writing the challenge to memory before startup.\cite{TEH15}
 
-\textbf{Write Failures:} In this method, process variations affecting the write reliability are exploited. Under normal operation, the write enable signal activates the bit lines i.e. connects them to the data bus which then overrides the bit line voltage. As a result, the DRAM cells would be overwritten by the value on the data bus. For normal operation the duty cycle of the write signal is chosen such that all DRAM cells can successfully. But for PUF operation, the duty cycle is deliberately reduced which results in some DRAM cells being overwritten while others are not. If a cell has been overwritten or not depends on the manufacturing variations. The data written under PUF operation can be treated as the challenge and a subsequent read reveals the response affected by the variations.
+\textbf{Write Failures:} In this method, process variations affecting the write reliability are exploited. Under normal operation, the write enable signal activates the bit lines i.e. connects them to the data bus which then overrides the bit line voltage. As a result, the DRAM cells would be overwritten by the value on the data bus. For normal operation the duty cycle of the write signal is chosen such that all DRAM cells can successfully. But for PUF operation, the duty cycle is deliberately reduced which results in some DRAM cells being overwritten while others are not. If a cell has been overwritten or not depends on the manufacturing variations. The data written under PUF operation can be treated as the challenge and a subsequent read reveals the response affected by the variations. \cite{HASH}
 
-\textbf{Refresh Pause:} In this method, the refresh of the DRAM cells is paused to allow random decaying of the data stored in memory[cite all known papers]. For normal operation DRAM cells need to be refreshed i.e. the capacitors holding the charges need to be recharged due to leakage in the circuit. If the refresh is delayed some DRAM cells decay and thereby introduce a bit flip in the stored data. Under such operation, the DRAM can be used as a PUF where the data stored before the delaying refresh can be treated as the challenge and the one after the delay as the response. An alternate method exploits data remanence properties [cite remanence from tehranipoor] of the DRAM, where the DRAM is completely switched off and then the cells are read.
+\textbf{Refresh Pause:} In this method, the refresh of the DRAM cells is paused to allow random decaying of the data stored in memory. \cite{SUT18} \cite{XIO16} \cite{SCH19} \cite{MISK} For normal operation DRAM cells need to be refreshed i.e. the capacitors holding the charges need to be recharged due to leakage in the circuit. If the refresh is delayed some DRAM cells decay and thereby introduce a bit flip in the stored data. Under such operation, the DRAM can be used as a PUF where the data stored before the delaying refresh can be treated as the challenge and the one after the delay as the response. An alternate method exploits data remanence properties of the DRAM, where the DRAM is completely switched off and then the cells are read. \cite{REM}
 
 \section{Implementation Objectives}
-In order to analyse the various presented methods measurements have to be made. Almost all surveyed papers use either hamming distance and fractional hamming distance or jaccard index [cite jaccard index] for measuring the properties of the PUFs. The usage of one over the other is debatable although [cite Xiong et al.] claims jaccard index to be a better metric because it takes into consideration only the bits that flip as opposed to fractional hamming distance which weighs all bits of the CRP equally. 
+In order to analyse the various presented methods measurements have to be made. Almost all surveyed papers use either hamming distance and fractional hamming distance or jaccard index for measuring the properties of the PUFs.\cite{jaccard} The usage of one over the other is debatable although Xiong et al claims jaccard index to be a better metric because it takes into consideration only the bits that flip as opposed to fractional hamming distance which weighs all bits of the CRP equally. 
 
-[insert formulas for both and properties too o jaccard index vs 1 jaccard index]
+\[ HD_{frac}(a,b) = \dfrac{HD(a,b)}{|a|} \]
+\[ J(a,b) = \dfrac{| a \bigcap b |}{| a \bigcup b |} \]
 
-\textit{Uniqueness.} Uniqueness in PUFs is measured by comparing responses for the same challenges on different PUF instances. Greater difference in responses indicates stronger uniqueness.  The comparison is measured using either hamming distance(needs to be high) or the jaccard index(needs to be low). All surveyed work proves the uniqueness through experimentation on PUF instances of different DRAM modules, sutar et al. goes a step further to analyze the uniqueness of different PUF instances within the same DRAM module. Since the experiment conducted by sutar et al. sparks interest the table below summarizes their results.
+\textit{Uniqueness.} Uniqueness in PUFs is measured by comparing responses for the same challenges on different PUF instances. Greater difference in responses indicates stronger uniqueness.  The comparison is measured using either hamming distance(needs to be high) or the jaccard index(needs to be low). All surveyed work proves the uniqueness through experimentation on PUF instances of different DRAM modules, Sutar et al. goes a step further to analyze the uniqueness of different PUF instances within the same DRAM module. Since the experiment conducted by Sutar et al. sparks interest the table below summarizes their results.
 
 % This is how you define a table: the [!hbt] means that LaTeX is forced (by the !) to place the table exactly here (by h), or if that doesnt work because of a pagebreak or so, it tries to place the table to the bottom of the page (by b) or the top (by t).
 \begin{table}[!hbt]
     % Center the table
     \begin{center}
     % Title of the table
-    \caption{Simulation Parameters}
+    \caption{Uniqueness Analysis, Refresh Pause Method}
     \label{tab:simParameters}
     % Table itself: here we have two columns which are centered and have lines to the left, right and in the middle: |c|c|
-    \begin{tabular}{|c|c|}
+    \begin{tabular}{|c|c|c|}
         % To create a horizontal line, type \hline
         \hline
         % To end a column type &
         % For a linebreak type \\
-        Information message length & $k=16000$ bit \\
+
+        Avg. HD = 216 & Min. HD = 113 & Different module at t=90s \\
         \hline
-        Radio segment size & $b=160$ bit \\
+        Avg. HD = 503 & Min. HD = 486 & Same module at t=60s \\
         \hline
-        Rate of component codes & $R_{cc}=1/3$\\
-        \hline
-        Polynomial of component encoders & $[1 , 33/37 , 25/37]_8$\\
-        \hline
+
     \end{tabular}
     \end{center}
 \end{table}
 
 \textit{Robustness.} Robustness of a PUF is measured by comparing the responses for the same challenges on the same PUF instances but on consequent executions. Hence robustness, in this context can also be seen as \textbf{reproducibility}. For robustness we need the HD to be close to 0 and the jaccard index to be close to 1. These measurements of robustness (same PUF instances) are further compared to the measurements of uniqueness (different PUF instances) to show \textbf{separability} or non-existence of false positives.
 
-Robustness is also measured against temperature variations and aging. Almost all research work reports a drop in reproducibility as the temperature is increased. Although this drop is inferred differently in different conducted research. [hashemian et al.] which uses write failures for PUF operation claims the temperature induced variability to be not too profound thereby proving stability. [Xiong et al.] which uses the refresh pause approach makes a relation between the temperature variation and decay rate and claims that the decay characteristics are unaffected. [Xiong et al], for the above relation, suggests decreasing the refresh pause interval under increased temperature conditions. [Sutar et al] recommend adequate error correction and use dynamic thresholds (depending on temperature) . Aging effects on PUFs robustness is found to be negligible by most research papers.
+Robustness is also measured against temperature variations and aging. Almost all research work reports a drop in reproducibility as the temperature is increased. Although this drop is inferred differently in different conducted research. Hashemian et al which uses write failures for PUF operation claims the temperature induced variability to be not too profound thereby proving stability. Xiong et al which uses the refresh pause approach makes a relation between the temperature variation and decay rate and claims that the decay characteristics are unaffected. Xiong et al, for the above relation, suggests decreasing the refresh pause interval under increased temperature conditions. Sutar et al recommend adequate error correction and use dynamic thresholds (depending on temperature) . Aging effects on PUFs robustness is found to be negligible by most research papers.
 
-\textit{Run-time Access.} Based on the methods DRAM PUFs are limited in access. For run-time access of DRAM PUFs it is important that the PUF operation doesn’t hinder the functioning of the OS and applications. The solution presented by [tehranipoor] restricts the access to the DRAM PUF to an early boot stage because DRAM startup values cannot be accessed later. Whereas, write failures based DRAM PUFs offer the flexibility of run time access.
+\textit{Run-time Access.} Based on the methods DRAM PUFs are limited in access. For run-time access of DRAM PUFs it is important that the PUF operation doesn’t hinder the functioning of the OS and applications. The solution presented by Tehranipoor et al restricts the access to the DRAM PUF to an early boot stage because DRAM startup values cannot be accessed later. Whereas, write failures based DRAM PUFs offer the flexibility of run time access.
 
-Refresh pause based  DRAM PUFs can offer run-time access but with modifications to the kernel in some cases. When LPDDR DRAM is being used the PUFs can be accessed at run-time due to “Partial Array Self-Refresh” functionality [cite liu et al. and sutar et al]. When DRAMs are split by different memory controllers they can still provide run-time access by splitting the memory per controller for OS and PUF respectively. Special case arises when the DRAM being used has none of the above features, in such case, memory ballooning[cite] is used to reserve a DRAM region and selective memory refreshing[cite] is used to refresh selected regions by initiating a read. Xiong et al. outlines and experiments this method in their work.
+Refresh pause based  DRAM PUFs can offer run-time access but with modifications to the kernel in some cases. When LPDDR DRAM is being used the PUFs can be accessed at run-time due to “Partial Array Self-Refresh” functionality. \cite{SUT18} When DRAMs are split by different memory controllers they can still provide run-time access by splitting the memory per controller for OS and PUF respectively. Special case arises when the DRAM being used has none of the above features, in such case, memory ballooning is used to reserve a DRAM region and selective memory refreshing is used to refresh selected regions by initiating a read.\cite{XIO16}
 
 \section{Authentication}
 Most surveyed papers use the challenge response pairs for lightweight authentication of a client/prover (C) device towards a server/verifier (S) as described below.
 
 \textit{Adversary and threat model.} It is assumed that all network traffic between client and server is observable by attackers except during the enrollment phase. This is also known as the passive attacker model and here the attacker can observe the previous PUF measurements that were passed to the server.
 
-\textit{Enrollment.} The flow chart in \ref{enroll} depicts the enrollment process. The enrollment phase deals with generation of the CRP database. These challenge response pairs are then either stored on a trusted secure database or distributed to verifiers in a secure manner. It has to be made sure that different verifiers receive different parts of the CRP database, otherwise one can spoof to be the device to the other.
+\textit{Enrollment.} The flow chart in Fig.\ref{fig:enroll} depicts the enrollment process. The enrollment phase deals with generation of the CRP database. These challenge response pairs are then either stored on a trusted secure database or distributed to verifiers in a secure manner. It has to be made sure that different verifiers receive different parts of the CRP database, otherwise one can spoof to be the device to the other.
 
 \begin{figure}[!hbt]
     % Center the figure.
     \begin{center}
     % Include the eps file, scale it such that it's width equals the column width. You can also put width=8cm for example...
-    \includegraphics[width=\columnwidth]{figs/enrollment.png}
+    \includegraphics[scale=0.5]{figs/enrollment.png}
     % Create a subtitle for the figure.
     \caption{Enrollment}
     % Define the label of the figure. It's good to use 'fig:title', so you know that the label belongs to a figure.
@@ -255,13 +254,13 @@ Most surveyed papers use the challenge response pairs for lightweight authentica
     \end{center}
 \end{figure}
 
-\textit{One Way Authentication.} The flowchart in \ref{one_way} depicts the one-way authentication process
+\textit{One Way Authentication.} The flowchart in Fig.\ref{fig:one_way} depicts the one-way authentication process
 
 \begin{figure}[!hbt]
     % Center the figure.
     \begin{center}
     % Include the eps file, scale it such that it's width equals the column width. You can also put width=8cm for example...
-    \includegraphics[width=\columnwidth]{figs/authentication.png}
+    \includegraphics[scale=0.5]{figs/authentication.png}
     % Create a subtitle for the figure.
     \caption{1-way Authentication}
     % Define the label of the figure. It's good to use 'fig:title', so you know that the label belongs to a figure.
@@ -269,99 +268,74 @@ Most surveyed papers use the challenge response pairs for lightweight authentica
     \end{center}
 \end{figure}
 
-\textit{Mutual Authentication.} This is an extension of the 1-way authentication which requires storage of CRPs in form of addresses of flipped bits rather than the bit pattern itself. The device in addition to the response of flipped addresses mixes random addresses. The server verfies the device by counting the number of matched addresses and checking it against a threshold. The server then filters out the known flip addresses from the response and sends it to the device. The device verifies the server's response by matching it with its own response.
+\textit{Mutual Authentication.} This is an extension of the 1-way authentication which requires storage of CRPs in form of addresses of flipped bits rather than the bit pattern itself. The device mixes random addresses with the flipped addresses before sending the response to the server. This is done to test the knowledge of the server. The server verfies the device by counting the number of matched addresses and checking it against a threshold. The server then filters out the known flip addresses from the response and sends it to the device. The device verifies the server's response by matching it with its own response.
 
-In both authentication protocols described above it is important to note that:
+In both authentication protocols described above, it is important to note that:
 \begin{itemize}
-    \item A CRP is never used twice. This is to prevent replay attacks. Hence a large CRP database or a strong PUF is required for continued authentication.
+    \item A CRP is never used twice to prevent replay attacks. Hence a large CRP database or a strong PUF is required for continued authentication.
     \item For fast authentication it is critical to pick a CRP with the fastest possible parameters(low refresh pause interval) is picked. This requires knowledge of the PUF characteristics beforehand.
 \end{itemize}
 
-These requirements pave the way for improvements in the usage of DRAM PUFs, Parameter Reconfigurability and Characterization resp.
+These requirements pave the way for improvements in the usage of DRAM PUFs, \textit{Parameter Reconfigurability} and \textit{Characterization}.
 
-\textit{Parameter Variation:} Most variations in parameters and the options of reconfigurability were presented with the refresh pause method. Hence this section will focus mainly on the refresh pause method.
+\textit{Parameter Reconfigurability.} The main objective of parameter reconfigurability is to increase the size of the CRP database. Fot this different parameters that can change the response behaviour of the PUF have to be recognized
 
-[Sutar et al] in their work show the reconfigurability of the refresh pause interval in order to obtain new challenge response pairs on the same PUF instance. A similar experiment is also conducted by [Xiong et al]. In both these works, the lowest refresh pause interval was 20s. After the CRPs of a particular refresh pause interval have been exhausted the interval can be increased to higher one depending on the number of “new” bit flips. Both these works also propose increasing the size of the PUF instance, in order to maintain the low refresh pause interval at the cost of DRAM space exhaustion. 
+Sutar et al in their work show the reconfigurability of the refresh pause interval in order to obtain new challenge response pairs on the same PUF instance. A similar experiment is also conducted by Xiong et al and Schaller et al. In both these works, the lowest refresh pause interval was 20s. After the CRPs of a particular refresh pause interval have been exhausted the interval can be increased to higher one depending on the number of “new” bit flips. Both these works also propose increasing the size of the PUF instance, in order to maintain the low refresh pause interval at the cost of DRAM space exhaustion. 
 
-Apart from the refresh pause interval and the size of the PUF instance, [sutar et al] and [miskelly et al] demonstrate the usage of different input patterns and the effect of peripheral bits, wrapper pattern, surrounding the block of PUF instances on the response.
+Apart from the refresh pause interval and the size of the PUF instance, Sutar et al and Miskelly et al demonstrate the usage of different input patterns. Sutar et al also demonstrate the effect of peripheral bits, a.k.a wrapper pattern, surrounding the block of PUF instances on the response.
 
-With these parameters at disposal, one can reconfigure the PUF instance to generate new sets of CRP pairs thereby increasing the size of the CRP database.
+With these parameters at disposal, one can reconfigure the PUF instance to generate new sets of CRP pairs and thereby increasing the size of the CRP database.
 
-\textit{Characterization:} For proper usage of the reconfiguration parameters, they have to be known to the verifier beforehand so that they can be attached with the challenge message during authentication. For achieving this the DRAM module has to be characterized. In simple terms, characterization is the process of trying all kinds of combinations of parameters and observing the difference in responses[cite]. After such an exhaustive experimentation the best suitable parameters are selected and the CRP database is generated accordingly. For example, [miskelly] experiments with an all ‘0’ and all ‘1’ input pattern and selects the input pattern with a higher number of bit flips. The responses for the two are biased due to the presence of true-cells and anti-cells.
+\textit{Characterization:} For proper usage of the reconfiguration parameters, the challenge response behaviour must be analysed before the authentication can take place. For achieving this the DRAM module has to be \textit{characterized}. In simple terms, characterization is the process of trying all kinds of combinations of parameters and observing the difference in responses.\cite{SUT18} After such an exhaustive experimentation the best suitable parameters are selected and the CRP database is generated accordingly. 
+
+For example, Miskelly et al. experiment with an all ‘0’ and all ‘1’ input pattern and selects the input pattern with a higher number of bit flips. The responses for the two are biased due to the presence of true-cells and anti-cells. Apart from maximizing entropy, characterization is also used to increase robustness of the PUF. Tehranipoor et al present a solution which selects stable bits only when all neighbouring bits (spatially) are stable. Other works have also reported a 6x increase in authentication speed by optimally selecting a refresh pause interval. \cite{SUT18} \cite{SCH19}
 
 Note that characterization is assumed to take place in a trusted and secure environment. Any information leakage of the characterization parameters reveals the characteristics of the PUF and hence make them susceptible to cloning.
 
+\section{Secure Channel Establishment}
 
-% Main Part
-\section{Main Part}
-% LaTeX takes complete care of your document layout ...
-The presentation's content is summarized in the report in 4~pages.
-% ... but you can insert a line break manually with two backslashes, if needed: \\
-The author should fill, but not exceed, this space. \\
-The report should be a self-contained report, so that it can be understood without studying additional literature.
+When a PUF cannot generate a large CRP database, it is used in conjunction with cryptography to achieve authentication. During the enrollment 
 
-\section{Format}
-The report can be written in \LaTeX{} or Microsoft Word, but \LaTeX{} is definitely preferred.
-Its appearance should be as close to this document as possible to achieve consistency in the proceedings.
+In order to use a PUF for key storage a Helper Data System, also known as Fuzzy Extractor [51], [52], [53], [54], is required. The HDS takes care of the noise in the PUF measurements and ensures that a cryptographic key can reproducibly be generated from the PUF. An HDS consists of an enrollment algorithm Enroll and a reconstruction algorithm Rec. The algorithm Enroll probes the PUF and outputs a secret key K and helper data w. The helper data is stored in nonvolatile memory. It must be assumed that an adversary has access to w as it is stored publicly on the device. Therefore, the Enroll algorithm is crafted such that w does not leak information about K. At reconstruction time, algorithm Rec does a fresh measurement of the PUF, reads w and computes a best guess K^ for the key from those two inputs. If the HDS is properly designed and the noise was below a certain threshold, then K^=K.
 
-% You can cite a book or paper by using \cite{reference}.
-% The references will be defined at the end of this .tex file in the bibliography
-References should be cited as numbers, and should be ordered by their appearance (example: ``... as shown in \cite{HOP96}, ...'').
-Only references that are actually cited can be listed in the references section.
-The references' format should be evident from the examples in this text.
+We construct an HDS that is similar to HDSs for SRAM PUFs [55]. The main difference is that the decay behavior of DRAM cells is an analog property, while SRAM startup states are discrete. We discretise the decay properties by giving DRAM cells a label ‘F’ (fast) or ‘S’ (slow) or no label. The F cells lose their charge quickly, the S cells slowly, and form sets F and S respectively. Our Enroll algorithm creates two layers of helper data: (i) pointers to memory cells which (during enrollment) were either extremely fast or extremely slow; (ii) helper data for the Code Offset Method (COM) [52], [53], [56], [57], [58]. The first layer improves noise resilience by selecting only those cells that are unlikely to change their decay speed significantly when environmental conditions change. Using pointers which identify a similar number of stable F and S cells also avoids the problem of high bias, as there are many more S cells than F cells in a DRAM module. In particular, the Code Offset Method, one of the simplest and most popular Helper Data Systems, becomes ineffective when its input has a large bias towards either 0 or 1, as shown in [59], [60]. In the case of large bias, PUF measurements exhibit decreased entropy, and in turn the COM's helper data w leaks information about the key K. In contrast, our use of pointers was introduced in [60] and is similar to ‘Index Based Syndromes’ [61], which avoids leakage problems due to bias. The details of the HDS follow.
 
-References should be of academic character and should be published and accessible.
-Your advisor can answer your questions regarding literature research.
-You must cite all used sources.
-Examples of good references include text books and scientific journals or conference proceedings.
-If possible, citing internet pages should be avoided. In particular, Wikipedia is \emph{not} an appropriate reference in academic reports.
-Avoiding references in languages other than English is recommended.
+5.2 System Setup
+We present our enrollment algorithm in Algorithm 1 and our reconstruction algorithm in Algorithm 2. A linear error correcting code is chosen that encodes k-bit messages in n-bit codewords. The syndrome function of the code is Syn:{0,1}n→{0,1}n−k. Syndrome decoding is denoted as SynDec:{0,1}n−k→{0,1}n. A key derivation function KeyDeriv:{0,1}n×{0,1}∗→{0,1}ℓ is chosen, which takes as input an n-bit secret string and public randomness, and outputs an ℓ-bit secret key. System parameters nf and ns, with ns+nf=n, and parameters N, t1, t2, t3 are fixed. The parameters t1, t2 and t3 are decay times, chosen such that t1≤t3. In particular, values N, t1, t3 are chosen such that the enrollment can be performed in a limited amount of time Nt1+t3 while still accurately labeling cells as F and S cells. Time t2 is chosen such that (a) reconstruction is sufficiently fast and (b) noise is small: a fast cell has had more time to discharge than at the enrollment timescale t1, and a slow cell has had less time to discharge than at enrollment timescale t3. In Section 5.3 we provide values for the parameters, based on the decay characteristics of our evaluation platforms. The parameter ℓ is set such that any information about x that the adversary may have (due to bias or non-uniform distributions of F and S cells, correlations between memory cells, etc.) is squeezed out by KeyDeriv's compression and does not end up in K. The KeyDeriv algorithm can, for example, be a universal hash function [62], [63] or a q-wise independent hash function [64].
 
-% You can reference tables and figure by using the \ref{label} command. Each table and figure needs to have a UNIQUE label.
-Figures and tables should be labeled and numbered, such as in Table~\ref{tab:simParameters} and Fig.~\ref{fig:tf_plot}.
+Algorithm 1. Enroll
+For i∈{1,…,N} do the following experiment: Charge the DRAM. Let it decay for time t1. Let Fi be the set of addresses of the decayed cells;
 
-% This is how you define a table: the [!hbt] means that LaTeX is forced (by the !) to place the table exactly here (by h), or if that doesnt work because of a pagebreak or so, it tries to place the table to the bottom of the page (by b) or the top (by t).
-\begin{table}[!hbt]
-    % Center the table
-    \begin{center}
-    % Title of the table
-    \caption{Simulation Parameters}
-    \label{tab:simParameters}
-    % Table itself: here we have two columns which are centered and have lines to the left, right and in the middle: |c|c|
-    \begin{tabular}{|c|c|}
-        % To create a horizontal line, type \hline
-        \hline
-        % To end a column type &
-        % For a linebreak type \\
-        Information message length & $k=16000$ bit \\
-        \hline
-        Radio segment size & $b=160$ bit \\
-        \hline
-        Rate of component codes & $R_{cc}=1/3$\\
-        \hline
-        Polynomial of component encoders & $[1 , 33/37 , 25/37]_8$\\
-        \hline
-    \end{tabular}
-    \end{center}
-\end{table}
+F=F1∩⋯∩FN;
 
-% If you have questions about how to write mathematical formulas in LaTeX, please read a LaTeX book or the 'Not So Short Introduction to LaTeX': tobi.oetiker.ch/lshort/lshort.pdf
+Charge the DRAM. Let it decay for time t3;
 
-% This is how you include a eps figure in your document. LaTeX only accepts EPS or TIFF files.
-\begin{figure}[!hbt]
-    % Center the figure.
-    \begin{center}
-    % Include the eps file, scale it such that it's width equals the column width. You can also put width=8cm for example...
-    \includegraphics[width=\columnwidth]{figs/plot_tf.eps}
-    % Create a subtitle for the figure.
-    \caption{Simulation results on the AWGN channel. Average throughput $k/n$ vs $E_s/N_0$.}
-    % Define the label of the figure. It's good to use 'fig:title', so you know that the label belongs to a figure.
-    \label{fig:tf_plot}
-    \end{center}
-\end{figure}
+Let S be the set of addresses of the cells that have not yet decayed;
 
-\section{Filling this page}
-Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur. Hi omnes lingua, institutis, legibus inter se differunt. Gallos ab Aquitanis Garumna flumen, a Belgis Matrona et Sequana dividit. Horum omnium fortissimi sunt Belgae, propterea quod a cultu atque humanitate provinciae longissime absunt, minimeque ad eos mercatores saepe commeant atque ea quae ad effeminandos animos pertinent important, proximique sunt Germanis, qui trans Rhenum incolunt, quibuscum continenter bellum gerunt.
+Randomly pick nf elements from F and ns elements from S, with nf+ns=n. Construct a vector r by putting the n elements in a random order. Construct x∈{0,1}n such that xi=1 if ri∈F and xi=0 if ri∈S;
+
+w=Syn(x);
+
+Generate random p. Compute K=KeyDeriv(x,p);
+
+Store (r,w,p) in memory.
+
+In the reconstruction procedure, the device may perform a temperature measurement and then adjust t2 to the temperature using a formula similar to Equation (5).
+
+There are well known methods by which Rec can verify if the reconstructed key is correct and if the stored data has been manipulated [54]. They are omitted here for the sake of brevity. In step 1 of Algorithm 2 we write (r′,w′,p′) because the stored data may have been manipulated.
+
+Step 4 of Algorithm 2 uses the linearity of the error correcting code. The expression w′⊕Syn(x′) equals Syn(x⊕x′), i.e., the syndrome of the error vector. The SynDec outputs the error vector, which is then xor'ed into x′ to reconstruct x.
+
+Algorithm 2. Rec
+Read (r′,w′,p′);
+
+Charge the DRAM. Let it decay for time t2;
+
+Construct x′∈{0,1}n such that x′i=1 if the cell at address r′i is decayed and 0 otherwise;
+
+x^=x′⊕SynDec(w′⊕Syn(x′));
+
+K^=KeyDeriv(x^,p′).
 
 \section{Conclusion}
 This section summarizes the paper. Now the reader knows your work, you can go into detail a little bit more about the main aspects.
@@ -370,26 +344,38 @@ This section summarizes the paper. Now the reader knows your work, you can go in
 % Now we need a bibliography:
 \begin{thebibliography}{1}
 
-    %Each item starts with a \bibitem{reference} command and the details thereafter.
-    \bibitem{HOP96} % Transaction paper
-    J.~Hagenauer, E.~Offer, and L.~Papke. Iterative decoding of binary block
-    and convolutional codes. {\em IEEE Trans. Inform. Theory},
-    vol.~42, no.~2, pp.~429–-445, Mar. 1996.
+    \bibitem{PEC06}
+    M. Pecht and S. Tiku, "Bogus: electronic manufacturing and consumers confront a rising tide of counterfeit electronics," in IEEE Spectrum, vol. 43, no. 5, pp. 37-46, May 2006, doi: 10.1109/MSPEC.2006.1628506.
 
-    \bibitem{MJH06} % Conference paper
-    T.~Mayer, H.~Jenkac, and J.~Hagenauer. Turbo base-station cooperation for intercell interference cancellation. {\em IEEE Int. Conf. Commun. (ICC)}, Istanbul, Turkey, pp.~356--361, June 2006.
+    \bibitem{EMVT12}
+    J. Viega and H. Thompson, "The State of Embedded-Device Security (Spoiler Alert: It's Bad)," in IEEE Security \& Privacy, vol. 10, no. 5, pp. 68-70, Sept.-Oct. 2012, doi: 10.1109/MSP.2012.134.
 
-    \bibitem{Proakis} % Book
-    J.~G.~Proakis. {\em Digital Communications}. McGraw-Hill Book Co.,
-    New York, USA, 3rd edition, 1995.
+    \bibitem{SUT18}
+    Soubhagya Sutar, Arnab Raha, Devadatta Kulkarni, Rajeev Shorey, Jeffrey Tew, and Vijay Raghunathan. 2017. D-PUF: An Intrinsically Reconfigurable DRAM PUF for Device Authentication and Random Number Generation. ACM Trans. Embed. Comput. Syst. 17, 1, Article 17 (January 2018), 31 pages. DOI:https://doi.org/10.1145/3105915
 
-    \bibitem{talk} % Web document
-    P.~N.~Edwards. How to give a talk: Changing the culture of academic public speaking.
-    http://www.si.umich.edu/~pne/acadtalk.htm.
+    \bibitem{XIO16}
+    Xiong W. et al. (2016) Run-Time Accessible DRAM PUFs in Commodity Devices. In: Gierlichs B., Poschmann A. (eds) Cryptographic Hardware and Embedded Systems – CHES 2016. CHES 2016. Lecture Notes in Computer Science, vol 9813. Springer, Berlin, Heidelberg. https://doi.org/10.1007/978-3-662-53140-2\_21
 
-    \bibitem{5}
-    IEEE Transactions \LaTeX{} and Microsoft Word Style Files.
-    http://www.ieee.org/web/publications/authors/transjnl/index.html
+    \bibitem{SCH19}
+    A. Schaller et al., "Decay-Based DRAM PUFs in Commodity Devices," in IEEE Transactions on Dependable and Secure Computing, vol. 16, no. 3, pp. 462-475, 1 May-June 2019, doi: 10.1109/TDSC.2018.2822298.
+
+    \bibitem{MISK}
+    J. Miskelly and M. O’Neill, "Fast DRAM PUFs on Commodity Devices," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 39, no. 11, pp. 3566-3576, Nov. 2020, doi: 10.1109/TCAD.2020.3012218.
+
+    \bibitem{TEH15}
+    Fatemeh Tehranipoor, Nima Karimian, Kan Xiao, and John Chandy. 2015. DRAM based Intrinsic Physical Unclonable Functions for System Level Security. In <i>Proceedings of the 25th edition on Great Lakes Symposium on VLSI</i> (<i>GLSVLSI '15</i>). Association for Computing Machinery, New York, NY, USA, 15–20. DOI:https://doi.org/10.1145/2742060.2742069
+
+    \bibitem{KELLER}
+    C. Keller, F. Gürkaynak, H. Kaeslin and N. Felber, "Dynamic memory-based physically unclonable function for the generation of unique identifiers and true random numbers," 2014 IEEE International Symposium on Circuits and Systems (ISCAS), 2014, pp. 2740-2743, doi: 10.1109/ISCAS.2014.6865740.
+
+    \bibitem{REM}
+    Gutmann, P. Data remanence in semiconductor devices. In Proceedings of the 10th Conference on USENIX Security Symposium - Volume 10 (Berkeley, CA, USA, 2001), SSYM’01, USENIX Association.
+
+    \bibitem{jaccard}
+    Jaccard, P. (1901) étude Comparative de la distribuition florale dans une portion des Alpes et des Jura. Bulletin de la Société Vaudoise des Sciences Naturelles, 7, 547-579.
+
+    \bibitem{HASH}
+    M. S. Hashemian, B. Singh, F. Wolff, D. Weyer, S. Clay and C. Papachristou, "A robust authentication methodology using physically unclonable functions in DRAM arrays," 2015 Design, Automation \& Test in Europe Conference \& Exhibition (DATE), 2015, pp. 647-652, doi: 10.7873/DATE.2015.0308.
 
 \end{thebibliography}
 
