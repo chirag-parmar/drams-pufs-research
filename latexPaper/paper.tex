@@ -294,48 +294,26 @@ Note that characterization is assumed to take place in a trusted and secure envi
 
 \section{Secure Channel Establishment}
 
-When a PUF cannot generate a large CRP database, it is used in conjunction with cryptography to achieve authentication. During the enrollment 
+When a PUF cannot generate a large CRP database, it is used with a Fuzzy Extractor a.k.a Helper Data System \cite{HDS15} for secure key storage. A fuzzy extractor correct errors in the PUF response \cite{SUT18} and enables regeneration of a cryptogrpahic key. A general construction of a fuzzy extractor contains:
 
-In order to use a PUF for key storage a Helper Data System, also known as Fuzzy Extractor [51], [52], [53], [54], is required. The HDS takes care of the noise in the PUF measurements and ensures that a cryptographic key can reproducibly be generated from the PUF. An HDS consists of an enrollment algorithm Enroll and a reconstruction algorithm Rec. The algorithm Enroll probes the PUF and outputs a secret key K and helper data w. The helper data is stored in nonvolatile memory. It must be assumed that an adversary has access to w as it is stored publicly on the device. Therefore, the Enroll algorithm is crafted such that w does not leak information about K. At reconstruction time, algorithm Rec does a fresh measurement of the PUF, reads w and computes a best guess K^ for the key from those two inputs. If the HDS is properly designed and the noise was below a certain threshold, then K^=K.
+\begin{itemize}
+    \item \textit{Enrollment Algorithm:} The enrollment algorithm takes as input a PUF response \(X\) and a random cryptographic key \(k\) and outputs helper data \(w\).
+    \item \textit{Reconstruction Algorithm:}  The reconstruction algorithm takes as input a fresh and noisy measurement of the PUF response \(X'\) and helper data \(w\) and outputs a reconstructed key \(k'\). If the noise in the PUF response is within a threshold \( k' = k\)
+\end{itemize}
 
-We construct an HDS that is similar to HDSs for SRAM PUFs [55]. The main difference is that the decay behavior of DRAM cells is an analog property, while SRAM startup states are discrete. We discretise the decay properties by giving DRAM cells a label ‘F’ (fast) or ‘S’ (slow) or no label. The F cells lose their charge quickly, the S cells slowly, and form sets F and S respectively. Our Enroll algorithm creates two layers of helper data: (i) pointers to memory cells which (during enrollment) were either extremely fast or extremely slow; (ii) helper data for the Code Offset Method (COM) [52], [53], [56], [57], [58]. The first layer improves noise resilience by selecting only those cells that are unlikely to change their decay speed significantly when environmental conditions change. Using pointers which identify a similar number of stable F and S cells also avoids the problem of high bias, as there are many more S cells than F cells in a DRAM module. In particular, the Code Offset Method, one of the simplest and most popular Helper Data Systems, becomes ineffective when its input has a large bias towards either 0 or 1, as shown in [59], [60]. In the case of large bias, PUF measurements exhibit decreased entropy, and in turn the COM's helper data w leaks information about the key K. In contrast, our use of pointers was introduced in [60] and is similar to ‘Index Based Syndromes’ [61], which avoids leakage problems due to bias. The details of the HDS follow.
+For using a fuzzy extractor with refresh based DRAM PUFs the decay behaviour must be discretized. Schaller et al present a viable method using refresh pause interval in which DRAM cells, during the characterization phase, are categorized into extremely fast cells \textbf{F} and slow cells \textbf{S}. The idea is that is a refresh pause interval that is greater than the decay rate of fast cells and lesser than decay rate of slow cells would guarantee a bitflip in \textbf{F} cells and no bitflip in \textbf{S} cells. In such a scenario it would be safe to mark the \textbf{F} cells as '1' an \textbf{S} cells as '0', hence, discretizing the behaviour of DRAM PUFs decay.
 
-5.2 System Setup
-We present our enrollment algorithm in Algorithm 1 and our reconstruction algorithm in Algorithm 2. A linear error correcting code is chosen that encodes k-bit messages in n-bit codewords. The syndrome function of the code is Syn:{0,1}n→{0,1}n−k. Syndrome decoding is denoted as SynDec:{0,1}n−k→{0,1}n. A key derivation function KeyDeriv:{0,1}n×{0,1}∗→{0,1}ℓ is chosen, which takes as input an n-bit secret string and public randomness, and outputs an ℓ-bit secret key. System parameters nf and ns, with ns+nf=n, and parameters N, t1, t2, t3 are fixed. The parameters t1, t2 and t3 are decay times, chosen such that t1≤t3. In particular, values N, t1, t3 are chosen such that the enrollment can be performed in a limited amount of time Nt1+t3 while still accurately labeling cells as F and S cells. Time t2 is chosen such that (a) reconstruction is sufficiently fast and (b) noise is small: a fast cell has had more time to discharge than at the enrollment timescale t1, and a slow cell has had less time to discharge than at enrollment timescale t3. In Section 5.3 we provide values for the parameters, based on the decay characteristics of our evaluation platforms. The parameter ℓ is set such that any information about x that the adversary may have (due to bias or non-uniform distributions of F and S cells, correlations between memory cells, etc.) is squeezed out by KeyDeriv's compression and does not end up in K. The KeyDeriv algorithm can, for example, be a universal hash function [62], [63] or a q-wise independent hash function [64].
+One of the earliest implementations of fuzzy extractors is the Code Offset Method. \cite{COM} COM uses a error correcting code at the core of its construction. The helper data \(w = X \oplus Enc(k)\), where \(Enc()\) is the encoding function of the error correcting code. The reconstructed key \(k' = Dec(X' \oplus w)\), where \(Dec()\) is the decoding function of the error correcting code. The important point to note here is that \(w\) plays the role of a syndrome. The error correcting code extracts the key \(k\) by correcting errors in \(X'\). This is clear when the formula is rewritten as \(k' = Dec(X' \oplus X \oplus Enc(k))\). Any remaining bits of the \(X' \oplus X\) if there are is corrected by \(Dec()\)
 
-Algorithm 1. Enroll
-For i∈{1,…,N} do the following experiment: Charge the DRAM. Let it decay for time t1. Let Fi be the set of addresses of the decayed cells;
+[insert fuzzy extractor image]
 
-F=F1∩⋯∩FN;
+Using such a fuzzy extractor would also require sufficient entropy in the input \(X\). Schaller et al overcomes this problem by selecting equal number of \textbf{F} cells and \textbf{S} cells. The entropy in the input is required so that no information is leaked through the helper data \(w\).
 
-Charge the DRAM. Let it decay for time t3;
+Another version of the COM scheme, Syndrome-COM or SCOM,\cite{COM} leverages syndrome decoding to use the input \(X\) itself as the cryptographic key. In this scheme the helper data \(w = Syn(X)\), where \(Syn()\) is the syndrome function. The reconstructed key \(k' = SynDec(w \oplus Sync(X'))\). The expression \(w \oplus Sync(X')\) equals \(Syn(X \oplus X')\), i.e., the syndrome of the error vector and \(SynDec()\) is teh syndrom decoder which corrects the error.
 
-Let S be the set of addresses of the cells that have not yet decayed;
+Schaller et al in their work use the same construction of SCOM with a modification of using a key derivation function on the reconstructed input \(X'\). This is done to ensure no bias from the PUF is transferred into the cryptographic key.
 
-Randomly pick nf elements from F and ns elements from S, with nf+ns=n. Construct a vector r by putting the n elements in a random order. Construct x∈{0,1}n such that xi=1 if ri∈F and xi=0 if ri∈S;
-
-w=Syn(x);
-
-Generate random p. Compute K=KeyDeriv(x,p);
-
-Store (r,w,p) in memory.
-
-In the reconstruction procedure, the device may perform a temperature measurement and then adjust t2 to the temperature using a formula similar to Equation (5).
-
-There are well known methods by which Rec can verify if the reconstructed key is correct and if the stored data has been manipulated [54]. They are omitted here for the sake of brevity. In step 1 of Algorithm 2 we write (r′,w′,p′) because the stored data may have been manipulated.
-
-Step 4 of Algorithm 2 uses the linearity of the error correcting code. The expression w′⊕Syn(x′) equals Syn(x⊕x′), i.e., the syndrome of the error vector. The SynDec outputs the error vector, which is then xor'ed into x′ to reconstruct x.
-
-Algorithm 2. Rec
-Read (r′,w′,p′);
-
-Charge the DRAM. Let it decay for time t2;
-
-Construct x′∈{0,1}n such that x′i=1 if the cell at address r′i is decayed and 0 otherwise;
-
-x^=x′⊕SynDec(w′⊕Syn(x′));
-
-K^=KeyDeriv(x^,p′).
+Other constructions, of HDSs make use of concatenation of two linear codes \(C_{1} = [n_{1}, k_{1}, d_{1}]\) \( c_{2} = [n_{2}, k_{2}, d_{2}]\).\cite{HDS15} In this construction, Code \(C_{1}\) needs to maintain a high entropy, which directly translates into high cardinality or high \(k_{1}\). And, Code \(C_{2}\) needs to have a high error correction rate, whcih directly transaltes to higher distance \(d_{2}\).
 
 \section{Conclusion}
 This section summarizes the paper. Now the reader knows your work, you can go into detail a little bit more about the main aspects.
@@ -376,6 +354,12 @@ This section summarizes the paper. Now the reader knows your work, you can go in
 
     \bibitem{HASH}
     M. S. Hashemian, B. Singh, F. Wolff, D. Weyer, S. Clay and C. Papachristou, "A robust authentication methodology using physically unclonable functions in DRAM arrays," 2015 Design, Automation \& Test in Europe Conference \& Exhibition (DATE), 2015, pp. 647-652, doi: 10.7873/DATE.2015.0308.
+
+    \bibitem{HDS15}
+    J. Delvaux, D. Gu, D. Schellekens and I. Verbauwhede, "Helper Data Algorithms for PUF-Based Key Generation: Overview and Analysis," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 34, no. 6, pp. 889-902, June 2015, doi: 10.1109/TCAD.2014.2370531.
+
+    \bibitem{COM}
+    Skoric, B., & Vreede, de, N. (2014). The spammed code offset method. IEEE Transactions on Information Forensics and Security, 9(5), 875-884. https://doi.org/10.1109/TIFS.2014.2312851
 
 \end{thebibliography}
 
