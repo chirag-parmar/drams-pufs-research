@@ -197,7 +197,7 @@ There are different methods in which the process variations of DRAM can be lever
 
 \textbf{Write Failures:} In this method, process variations affecting the write reliability are exploited. Under normal operation, the write enable signal activates the bit lines i.e. connects them to the data bus which then overrides the bit line voltage. As a result, the DRAM cells would be overwritten by the value on the data bus. For normal operation the duty cycle of the write signal is chosen such that all DRAM cells can successfully. But for PUF operation, the duty cycle is deliberately reduced which results in some DRAM cells being overwritten while others are not. If a cell has been overwritten or not depends on the manufacturing variations. The data written under PUF operation can be treated as the challenge and a subsequent read reveals the response affected by the variations. \cite{HASH}
 
-\textbf{Refresh Pause:} In this method, the refresh of the DRAM cells is paused to allow random decaying of the data stored in memory. \cite{SUT18} \cite{XIO16} \cite{SCH19} \cite{MISK} For normal operation DRAM cells need to be refreshed i.e. the capacitors holding the charges need to be recharged due to leakage in the circuit. If the refresh is delayed some DRAM cells decay and thereby introduce a bit flip in the stored data. Under such operation, the DRAM can be used as a PUF where the data stored before the delaying refresh can be treated as the challenge and the one after the delay as the response. An alternate method exploits data remanence properties of the DRAM, where the DRAM is completely switched off and then the cells are read. \cite{REM}
+\textbf{Refresh Pause:} In this method, the refresh of the DRAM cells is paused to allow random decaying of the data stored in memory. \cite{SUT18} \cite{XIO16} \cite{SCH19} \cite{MISK} \cite{KELLER} For normal operation DRAM cells need to be refreshed i.e. the capacitors holding the charges need to be recharged due to leakage in the circuit. If the refresh is delayed some DRAM cells decay and thereby introduce a bit flip in the stored data. Under such operation, the DRAM can be used as a PUF where the data stored before the delaying refresh can be treated as the challenge and the one after the delay as the response. An alternate method exploits data remanence properties of the DRAM, where the DRAM is completely switched off and then the cells are read. \cite{REM}
 
 \section{Implementation Objectives}
 In order to analyse the various presented methods measurements have to be made. Almost all surveyed papers use either hamming distance and fractional hamming distance or jaccard index for measuring the properties of the PUFs.\cite{jaccard} The usage of one over the other is debatable although Xiong et al claims jaccard index to be a better metric because it takes into consideration only the bits that flip as opposed to fractional hamming distance which weighs all bits of the CRP equally. 
@@ -333,11 +333,17 @@ This paper highlights why and how PUFs fufill the demands of hardware-intrinsic 
 % Now we need a bibliography:
 \begin{thebibliography}{1}
 
+    \bibitem{EMVT12}
+    J. Viega and H. Thompson, "The State of Embedded-Device Security (Spoiler Alert: It's Bad)," in IEEE Security \& Privacy, vol. 10, no. 5, pp. 68-70, Sept.-Oct. 2012, doi: 10.1109/MSP.2012.134.
+
     \bibitem{PEC06}
     M. Pecht and S. Tiku, "Bogus: electronic manufacturing and consumers confront a rising tide of counterfeit electronics," in IEEE Spectrum, vol. 43, no. 5, pp. 37-46, May 2006, doi: 10.1109/MSPEC.2006.1628506.
 
-    \bibitem{EMVT12}
-    J. Viega and H. Thompson, "The State of Embedded-Device Security (Spoiler Alert: It's Bad)," in IEEE Security \& Privacy, vol. 10, no. 5, pp. 68-70, Sept.-Oct. 2012, doi: 10.1109/MSP.2012.134.
+    \bibitem{TEH15}
+    Fatemeh Tehranipoor et al. 2015. DRAM based Intrinsic Physical Unclonable Functions for System Level Security. 25th edition on Great Lakes Symposium on VLSI (GLSVLSI '15). ACM, New York, NY, USA, 15–20. DOI:https://doi.org/10.1145/2742060.2742069
+
+    \bibitem{HASH}
+    M. S. Hashemian et al. "A robust authentication methodology using physically unclonable functions in DRAM arrays," 2015 Design, Automation \& Test in Europe Conference \& Exhibition (DATE), 2015, pp. 647-652, doi: 10.7873/DATE.2015.0308.
 
     \bibitem{SUT18}
     Soubhagya Sutar et al. D-PUF: An Intrinsically Reconfigurable DRAM PUF for Device Authentication and Random Number Generation. ACM Trans. Embed. Comput. Syst. 17, 1, Article 17 (January 2018), 31 pages. DOI:https://doi.org/10.1145/3105915
@@ -351,9 +357,6 @@ This paper highlights why and how PUFs fufill the demands of hardware-intrinsic 
     \bibitem{MISK}
     J. Miskelly and M. O’Neill, "Fast DRAM PUFs on Commodity Devices," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 39, no. 11, pp. 3566-3576, Nov. 2020, doi: 10.1109/TCAD.2020.3012218.
 
-    \bibitem{TEH15}
-    Fatemeh Tehranipoor et al. 2015. DRAM based Intrinsic Physical Unclonable Functions for System Level Security. 25th edition on Great Lakes Symposium on VLSI (GLSVLSI '15). ACM, New York, NY, USA, 15–20. DOI:https://doi.org/10.1145/2742060.2742069
-
     \bibitem{KELLER}
     C. Keller et al., "Dynamic memory-based physically unclonable function for the generation of unique identifiers and true random numbers," 2014 IEEE International Symposium on Circuits and Systems (ISCAS), 2014, pp. 2740-2743, doi: 10.1109/ISCAS.2014.6865740.
 
@@ -363,14 +366,11 @@ This paper highlights why and how PUFs fufill the demands of hardware-intrinsic 
     \bibitem{jaccard}
     Jaccard, P. (1901) étude Comparative de la distribuition florale dans une portion des Alpes et des Jura. Bulletin de la Société Vaudoise des Sciences Naturelles, 7, 547-579.
 
-    \bibitem{HASH}
-    M. S. Hashemian et al. "A robust authentication methodology using physically unclonable functions in DRAM arrays," 2015 Design, Automation \& Test in Europe Conference \& Exhibition (DATE), 2015, pp. 647-652, doi: 10.7873/DATE.2015.0308.
+    \bibitem{COM}
+    Skoric, B., \& Vreede, de, N. (2014). The spammed code offset method. IEEE Transactions on Information Forensics and Security, 9(5), 875-884. https://doi.org/10.1109/TIFS.2014.2312851
 
     \bibitem{HDS15}
     J. Delvaux, D. Gu, D. Schellekens and I. Verbauwhede, "Helper Data Algorithms for PUF-Based Key Generation: Overview and Analysis," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 34, no. 6, pp. 889-902, June 2015, doi: 10.1109/TCAD.2014.2370531.
-
-    \bibitem{COM}
-    Skoric, B., \& Vreede, de, N. (2014). The spammed code offset method. IEEE Transactions on Information Forensics and Security, 9(5), 875-884. https://doi.org/10.1109/TIFS.2014.2312851
 
 \end{thebibliography}
 
