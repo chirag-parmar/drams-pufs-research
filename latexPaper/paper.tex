@@ -116,6 +116,8 @@
                         % and documentation can be obtained at:
                         % http://www.ctan.org/tex-archive/macros/latex/required/amslatex/math/
 
+\usepackage[belowskip=-5pt,aboveskip=5pt]{caption}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
 
 
 % Other popular packages for formatting tables and equations include:
@@ -152,42 +154,44 @@
 
 % Write abstract here
 \begin{abstract}
-Security concerns relating to IoT are increasing and the most prominent of these concerns is that of counterfeit or tampered hardware. For such a problem, it is important to employ a hardware-intrinsic security mechanism for authentication of the device. While previous solutions like secure key storage attempt to solve this problem they only pass on the issue to the next stage. This paper outlines the use of Physically Unclonable Functions (PUFs) for hardware-intrinsic authentication. It summarizes well-known works on DRAM based PUFs and also presents known protocols and schemes to achieve authentication on embedded devices using PUFs.
+One of the major security concerns regarding IoT is that of counterfeit or tampered hardware. To overcome this problem it is important to employ a hardware-intrinsic security mechanism for authentication of the device. While previous solutions like secure key storage attempt to solve this problem they only pass on the issue to the next stage. This paper outlines the use of Physically Unclonable Functions (PUFs) for hardware-intrinsic authentication. It summarizes well-known works on DRAM based PUFs and also presents known protocols and schemes to achieve authentication on embedded devices using PUFs.
 \end{abstract}
 
 % Each section begins with a \section{title} command
 \section{Introduction}
 % \IEEEPARstart{}{} creates a tall first letter for this first paragraph
-\IEEEPARstart{I}{n} In light of the IoT era the world has seen a spike in the number of smart devices deployed in the market. These ubiquitous smart devices can be found anywhere, from toasters to cars. While they bring a lot of advantages to the table they add a profound amount of concern regarding security and privacy. \cite{EMVT12} The most prominent security concern includes counterfeit or tampered hardware. \cite{PEC06} 
+\IEEEPARstart{I}{n} light of the IoT era the world has seen a spike in the number of smart devices deployed in the market. These ubiquitous smart devices can be found anywhere, from toasters to cars. While they bring a lot of advantages to the table they add a profound amount of concern regarding security and privacy. \cite{EMVT12} The most prominent security concern includes counterfeit or tampered hardware. \cite{PEC06} 
 
 Mitigating these security risks requires hardware-intrinsic security mechanisms that support authentication and identification of the device. A known solution requires cryptographic keys to be burned in at manufacturing time and then later used in symmetric/asymmetric protocols for authentication. Although this approach is susceptible to key extraction attacks giving way to cloning. Thus, Physically Unclonable Functions have been proposed as a solution to this issue.
 
-PUFs by definition are unclonable and also because they exploit the process variations of manufacturing to form a hardware-based fingerprint. This hardware based fingerprint with a supporting lightweight protocol can then be used for authentication. Clearly, it is very important for the PUF instance to be intrinsic to the hardware that needs to be authenticated. The intrinsic nature can be assured either by addition of dedicated circuits or by using PUFs inherent to the device. Since the latter adds costs to the manufacturing process, inherent and intrinsic PUFs are much preferred. DRAM based PUFs are such a class of PUFs, because they can be found in almost all COTS devices.
-
-This paper briefly touches on the basics of PUFs and dives into how DRAMs are used as PUF instances in the Theory section. Through means of survey it presents different types of authentication mechanisms used in conjunction with DRAM based PUFs. Finally, it also presents the main implementation objectives accompanied by a summary of metrics by means of survey.
+The next section exlpains the basics of PUFs and why they are a better solution to the problem. It also dives into how DRAMs can be used as PUFs and explains various methods of doing so.
 
 \section{Theory}
 This sections goes into the basics of PUFs and workings of DRAM PUFs.
-
+\vspace{-0.9em}
 \subsection{PUFs}
-In practice most PUFs are characterized by challenges and responses. A challenge is the input given to the PUF, which then utilizes the random manufacturing process variations to convert the challenge to a response. The randomness makes the response unpredictable and because these variations cannot be controlled, even by the manufacturer, the response is unclonable on any other device. Hence, the response can be used as a hardware intrinsic fingerprint for authentication.
+
+In practice most PUFs are characterized by challenges and responses. A challenge is the input given to the PUF. The PUF utilizes random manufacturing variations to convert the challenge to a response. The randomness makes the response unpredictabl. And because these variations cannot be controlled, even by the manufacturer, the response is unclonable on any other device. Thios way they attain their property of being \textbf{physically unclonable}.
 
 \begin{figure}[!hbt]
     % Center the figure.
-    \begin{center}
+    \centering
     % Include the eps file, scale it such that it's width equals the column width. You can also put width=8cm for example...
     \includegraphics[scale=0.5]{figs/PUF.png}
     % Create a subtitle for the figure.
+    \setlength{\belowcaptionskip}{-10pt}
     \caption{PUFS}
     % Define the label of the figure. It's good to use 'fig:title', so you know that the label belongs to a figure.
     \label{fig:tf_plot}
-    \end{center}
+
 \end{figure}
 
 PUFs are mainly categorized into strong PUFs and weak PUFs based on the number of unique challenge response pairs (CRPs) they can generate. Larger the CRP database, the stronger the PUF. Both kinds of PUFs have appropriate supporting authentication protocols as discussed in the next sections.
 
+\vspace{-0.9em}
+
 \subsection{DRAM PUFs}
-There are different methods in which the process variations of DRAM can be leveraged and they are explained below:
+There are different methods in which the process variations of DRAM can be leveraged to implement PUFs. The well-known methods are explained below.
 
 \textbf{Startup:} In this method, the startup state of the DRAM is used for unique fingerprinting. As mentioned by Tehranipoor et al. “DRAMs have seemingly random startup values”. This is because the bitlines on DRAM are precharged to vdd/2 which makes the sense amplifier equally likely to read a ‘1’ or ‘0’. But, due to the process variations of manufacturing most bits have either a bias towards a ‘1’ or a ‘0’. Hence, the startup values of the DRAM are randomized by the random process variations. It is noted though that some bits have a neutral skew/bias i.e. they randomly switch to ‘1’ or ‘0’ over multiple startups. These bits can be used for random number generation. This method is not suitable for authentication using the traditional CRP database approach, because startup values cannot be varied by writing the challenge to memory before startup.\cite{TEH15}
 
@@ -202,43 +206,41 @@ In order to analyse the various presented methods measurements have to be made. 
 
 \textit{Uniqueness.} Uniqueness in PUFs is measured by comparing responses for the same challenges on different PUF instances. Greater difference in responses indicates stronger uniqueness.  The comparison is measured using either hamming distance(needs to be high) or the jaccard index(needs to be low). All surveyed work proves the uniqueness through experimentation on PUF instances of different DRAM modules, Sutar et al. goes a step further to analyze the uniqueness of different PUF instances within the same DRAM module. Since the experiment conducted by Sutar et al. sparks interest the table below summarizes their results.
 
-% This is how you define a table: the [!hbt] means that LaTeX is forced (by the !) to place the table exactly here (by h), or if that doesnt work because of a pagebreak or so, it tries to place the table to the bottom of the page (by b) or the top (by t).
-\begin{table}[!hbt]
-    % Center the table
-    \begin{center}
-    % Title of the table
-    \caption{Uniqueness Analysis, Refresh Pause Method}
-    \label{tab:simParameters}
-    % Table itself: here we have two columns which are centered and have lines to the left, right and in the middle: |c|c|
-    \begin{tabular}{|c|c|c|}
-        % To create a horizontal line, type \hline
-        \hline
-        % To end a column type &
-        % For a linebreak type \\
+% % This is how you define a table: the [!hbt] means that LaTeX is forced (by the !) to place the table exactly here (by h), or if that doesnt work because of a pagebreak or so, it tries to place the table to the bottom of the page (by b) or the top (by t).
+% \begin{table}[!hbt]
+%     % Center the table
+%     \begin{center}
+%     % Title of the table
+%     \caption{Uniqueness Analysis, Refresh Pause Method}
+%     \label{tab:simParameters}
+%     % Table itself: here we have two columns which are centered and have lines to the left, right and in the middle: |c|c|
+%     \begin{tabular}{|c|c|c|}
+%         % To create a horizontal line, type \hline
+%         \hline
+%         % To end a column type &
+%         % For a linebreak type \\
 
-        Avg. HD = 216 & Min. HD = 113 & Different module at t=90s \\
-        \hline
-        Avg. HD = 503 & Min. HD = 486 & Same module at t=60s \\
-        \hline
+%         Avg. HD = 216 & Min. HD = 113 & Different module at t=90s \\
+%         \hline
+%         Avg. HD = 503 & Min. HD = 486 & Same module at t=60s \\
+%         \hline
 
-    \end{tabular}
-    \end{center}
-\end{table}
+%     \end{tabular}
+%     \end{center}
+% \end{table}
 
 \textit{Robustness.} Robustness of a PUF is measured by comparing the responses for the same challenges on the same PUF instances but on consequent executions. Hence robustness, in this context can also be seen as \textbf{reproducibility}. For robustness we need the HD to be close to 0 and the jaccard index to be close to 1. These measurements of robustness (same PUF instances) are further compared to the measurements of uniqueness (different PUF instances) to show \textbf{separability} or non-existence of false positives.
 
 Robustness is also measured against temperature variations and aging. Almost all research work reports a drop in reproducibility as the temperature is increased. Although this drop is inferred differently in different conducted research. Hashemian et al which uses write failures for PUF operation claims the temperature induced variability to be not too profound thereby proving stability. Xiong et al which uses the refresh pause approach makes a relation between the temperature variation and decay rate and claims that the decay characteristics are unaffected. Xiong et al, for the above relation, suggests decreasing the refresh pause interval under increased temperature conditions. Sutar et al recommend adequate error correction and use dynamic thresholds (depending on temperature) . Aging effects on PUFs robustness is found to be negligible by most research papers.
 
-\textit{Run-time Access.} Based on the methods DRAM PUFs are limited in access. For run-time access of DRAM PUFs it is important that the PUF operation doesn’t hinder the functioning of the OS and applications. The solution presented by Tehranipoor et al restricts the access to the DRAM PUF to an early boot stage because DRAM startup values cannot be accessed later. Whereas, write failures based DRAM PUFs offer the flexibility of run time access.
+\textit{Run-time Access.} Depending on the method used, DRAM PUFs have restricted access. For run-time access of DRAM PUFs it is important that the PUF operation doesn’t hinder the functioning of the OS and applications. The solution presented by Tehranipoor et al restricts the access to the DRAM PUF to an early boot stage because DRAM startup values cannot be accessed later. Whereas, write failures based DRAM PUFs offer the flexibility of run time access.
 
-Refresh pause based  DRAM PUFs can offer run-time access but with modifications to the kernel in some cases. When LPDDR DRAM is being used the PUFs can be accessed at run-time due to “Partial Array Self-Refresh” functionality. \cite{SUT18} When DRAMs are split by different memory controllers they can still provide run-time access by splitting the memory per controller for OS and PUF respectively. Special case arises when the DRAM being used has none of the above features, in such case, memory ballooning is used to reserve a DRAM region and selective memory refreshing is used to refresh selected regions by initiating a read.\cite{XIO16}
+Refresh pause based  DRAM PUFs can offer run-time access but with modifications to the kernel in some cases. When LPDDR DRAM is being used the PUFs can be accessed at run-time due to “Partial Array Self-Refresh” functionality. \cite{SUT18} When DRAMs are split by different memory controllers they can still provide run-time access by splitting the memory per controller for OS and PUF respectively. Special case arises when the DRAM being used has none of the above features, in such case, \textit{memory ballooning} is used to reserve a DRAM region and \textit{selective memory refreshing} is used to refresh selected regions by initiating a read.\cite{XIO16}
 
 \section{Authentication}
 Most surveyed papers use the challenge response pairs for lightweight authentication of a client/prover (C) device towards a server/verifier (S) as described below.
 
 \textit{Adversary and threat model.} It is assumed that all network traffic between client and server is observable by attackers except during the enrollment phase. This is also known as the passive attacker model and here the attacker can observe the previous PUF measurements that were passed to the server.
-
-\textit{Enrollment.} The flow chart in Fig.\ref{fig:enroll} depicts the enrollment process. The enrollment phase deals with generation of the CRP database. These challenge response pairs are then either stored on a trusted secure database or distributed to verifiers in a secure manner. It has to be made sure that different verifiers receive different parts of the CRP database, otherwise one can spoof to be the device to the other.
 
 \begin{figure}[!hbt]
     % Center the figure.
@@ -252,7 +254,9 @@ Most surveyed papers use the challenge response pairs for lightweight authentica
     \end{center}
 \end{figure}
 
-\textit{One Way Authentication.} The flowchart in Fig.\ref{fig:one_way} depicts the one-way authentication process
+\textit{Enrollment.} The flow chart in Fig.\ref{fig:enroll} depicts the enrollment process. The enrollment phase deals with generation of the CRP database. These challenge response pairs are then either stored on a trusted secure database or distributed to verifiers in a secure manner. It has to be made sure that different verifiers receive different parts of the CRP database, otherwise one can spoof to be the device to the other.
+
+\textit{One Way Authentication.} The flowchart in Fig.\ref{fig:one_way} depicts the one-way authentication process. In short, The server matches the device's remeasured response against the CRP database. If matches, the device is authenticated
 
 \begin{figure}[!hbt]
     % Center the figure.
@@ -336,7 +340,7 @@ This paper highlights why and how PUFs fufill the demands of hardware-intrinsic 
     J. Viega and H. Thompson, "The State of Embedded-Device Security (Spoiler Alert: It's Bad)," in IEEE Security \& Privacy, vol. 10, no. 5, pp. 68-70, Sept.-Oct. 2012, doi: 10.1109/MSP.2012.134.
 
     \bibitem{SUT18}
-    Soubhagya Sutar, Arnab Raha, Devadatta Kulkarni, Rajeev Shorey, Jeffrey Tew, and Vijay Raghunathan. 2017. D-PUF: An Intrinsically Reconfigurable DRAM PUF for Device Authentication and Random Number Generation. ACM Trans. Embed. Comput. Syst. 17, 1, Article 17 (January 2018), 31 pages. DOI:https://doi.org/10.1145/3105915
+    Soubhagya Sutar et al. D-PUF: An Intrinsically Reconfigurable DRAM PUF for Device Authentication and Random Number Generation. ACM Trans. Embed. Comput. Syst. 17, 1, Article 17 (January 2018), 31 pages. DOI:https://doi.org/10.1145/3105915
 
     \bibitem{XIO16}
     Xiong W. et al. (2016) Run-Time Accessible DRAM PUFs in Commodity Devices. In: Gierlichs B., Poschmann A. (eds) Cryptographic Hardware and Embedded Systems – CHES 2016. CHES 2016. Lecture Notes in Computer Science, vol 9813. Springer, Berlin, Heidelberg. https://doi.org/10.1007/978-3-662-53140-2\_21
@@ -348,10 +352,10 @@ This paper highlights why and how PUFs fufill the demands of hardware-intrinsic 
     J. Miskelly and M. O’Neill, "Fast DRAM PUFs on Commodity Devices," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 39, no. 11, pp. 3566-3576, Nov. 2020, doi: 10.1109/TCAD.2020.3012218.
 
     \bibitem{TEH15}
-    Fatemeh Tehranipoor, Nima Karimian, Kan Xiao, and John Chandy. 2015. DRAM based Intrinsic Physical Unclonable Functions for System Level Security. In <i>Proceedings of the 25th edition on Great Lakes Symposium on VLSI</i> (<i>GLSVLSI '15</i>). Association for Computing Machinery, New York, NY, USA, 15–20. DOI:https://doi.org/10.1145/2742060.2742069
+    Fatemeh Tehranipoor et al. 2015. DRAM based Intrinsic Physical Unclonable Functions for System Level Security. 25th edition on Great Lakes Symposium on VLSI (GLSVLSI '15). ACM, New York, NY, USA, 15–20. DOI:https://doi.org/10.1145/2742060.2742069
 
     \bibitem{KELLER}
-    C. Keller, F. Gürkaynak, H. Kaeslin and N. Felber, "Dynamic memory-based physically unclonable function for the generation of unique identifiers and true random numbers," 2014 IEEE International Symposium on Circuits and Systems (ISCAS), 2014, pp. 2740-2743, doi: 10.1109/ISCAS.2014.6865740.
+    C. Keller et al., "Dynamic memory-based physically unclonable function for the generation of unique identifiers and true random numbers," 2014 IEEE International Symposium on Circuits and Systems (ISCAS), 2014, pp. 2740-2743, doi: 10.1109/ISCAS.2014.6865740.
 
     \bibitem{REM}
     Gutmann, P. Data remanence in semiconductor devices. In Proceedings of the 10th Conference on USENIX Security Symposium - Volume 10 (Berkeley, CA, USA, 2001), SSYM’01, USENIX Association.
@@ -360,7 +364,7 @@ This paper highlights why and how PUFs fufill the demands of hardware-intrinsic 
     Jaccard, P. (1901) étude Comparative de la distribuition florale dans une portion des Alpes et des Jura. Bulletin de la Société Vaudoise des Sciences Naturelles, 7, 547-579.
 
     \bibitem{HASH}
-    M. S. Hashemian, B. Singh, F. Wolff, D. Weyer, S. Clay and C. Papachristou, "A robust authentication methodology using physically unclonable functions in DRAM arrays," 2015 Design, Automation \& Test in Europe Conference \& Exhibition (DATE), 2015, pp. 647-652, doi: 10.7873/DATE.2015.0308.
+    M. S. Hashemian et al. "A robust authentication methodology using physically unclonable functions in DRAM arrays," 2015 Design, Automation \& Test in Europe Conference \& Exhibition (DATE), 2015, pp. 647-652, doi: 10.7873/DATE.2015.0308.
 
     \bibitem{HDS15}
     J. Delvaux, D. Gu, D. Schellekens and I. Verbauwhede, "Helper Data Algorithms for PUF-Based Key Generation: Overview and Analysis," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 34, no. 6, pp. 889-902, June 2015, doi: 10.1109/TCAD.2014.2370531.
