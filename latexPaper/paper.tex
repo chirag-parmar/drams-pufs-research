@@ -152,8 +152,7 @@
 
 % Write abstract here
 \begin{abstract}
-The short abstract (50-80 words) is intended to give the reader an overview of the work.
-Keep in mind that he does not known the work yet.
+Security concerns relating to IoT are increasing and the most prominent of these concerns is that of counterfeit or tampered hardware. For such a problem, it is important to employ a hardware-intrinsic security mechanism for authentication of the device. While previous solutions like secure key storage attempt to solve this problem they only pass on the issue to the next stage. This paper outlines the use of Physically Unclonable Functions (PUFs) for hardware-intrinsic authentication. It summarizes well-known works on DRAM based PUFs and also presents known protocols and schemes to achieve authentication on embedded devices using PUFs.
 \end{abstract}
 
 % Each section begins with a \section{title} command
@@ -199,8 +198,7 @@ There are different methods in which the process variations of DRAM can be lever
 \section{Implementation Objectives}
 In order to analyse the various presented methods measurements have to be made. Almost all surveyed papers use either hamming distance and fractional hamming distance or jaccard index for measuring the properties of the PUFs.\cite{jaccard} The usage of one over the other is debatable although Xiong et al claims jaccard index to be a better metric because it takes into consideration only the bits that flip as opposed to fractional hamming distance which weighs all bits of the CRP equally. 
 
-\[ HD_{frac}(a,b) = \dfrac{HD(a,b)}{|a|} \]
-\[ J(a,b) = \dfrac{| a \bigcap b |}{| a \bigcup b |} \]
+\[ HD_{frac}(a,b) = \dfrac{HD(a,b)}{|a|} \quad\text{and}\quad J(a,b) = \dfrac{| a \bigcap b |}{| a \bigcup b |} \]
 
 \textit{Uniqueness.} Uniqueness in PUFs is measured by comparing responses for the same challenges on different PUF instances. Greater difference in responses indicates stronger uniqueness.  The comparison is measured using either hamming distance(needs to be high) or the jaccard index(needs to be low). All surveyed work proves the uniqueness through experimentation on PUF instances of different DRAM modules, Sutar et al. goes a step further to analyze the uniqueness of different PUF instances within the same DRAM module. Since the experiment conducted by Sutar et al. sparks interest the table below summarizes their results.
 
@@ -294,7 +292,7 @@ Note that characterization is assumed to take place in a trusted and secure envi
 
 \section{Secure Channel Establishment}
 
-When a PUF cannot generate a large CRP database, it is used with a Fuzzy Extractor a.k.a Helper Data System \cite{HDS15} for secure key storage. A fuzzy extractor correct errors in the PUF response \cite{SUT18} and enables regeneration of a cryptogrpahic key. A general construction of a fuzzy extractor contains:
+When a PUF cannot generate a large CRP database, it is used with a Fuzzy Extractor a.k.a Helper Data System \cite{HDS15} for secure key storage. A fuzzy extractor corrects errors in the PUF response \cite{SUT18} and enables regeneration of a cryptogrpahic key. This way the reproduced key can be used to setup a secure channel through symmetric protocols. Once a secure channel is established authentication can be done through asymmetric protocols. A general construction of a fuzzy extractor contains:
 
 \begin{itemize}
     \item \textit{Enrollment Algorithm:} The enrollment algorithm takes as input a PUF response \(X\) and a random cryptographic key \(k\) and outputs helper data \(w\).
@@ -303,21 +301,30 @@ When a PUF cannot generate a large CRP database, it is used with a Fuzzy Extract
 
 For using a fuzzy extractor with refresh based DRAM PUFs the decay behaviour must be discretized. Schaller et al present a viable method using refresh pause interval in which DRAM cells, during the characterization phase, are categorized into extremely fast cells \textbf{F} and slow cells \textbf{S}. The idea is that is a refresh pause interval that is greater than the decay rate of fast cells and lesser than decay rate of slow cells would guarantee a bitflip in \textbf{F} cells and no bitflip in \textbf{S} cells. In such a scenario it would be safe to mark the \textbf{F} cells as '1' an \textbf{S} cells as '0', hence, discretizing the behaviour of DRAM PUFs decay.
 
-One of the earliest implementations of fuzzy extractors is the Code Offset Method. \cite{COM} COM uses a error correcting code at the core of its construction. The helper data \(w = X \oplus Enc(k)\), where \(Enc()\) is the encoding function of the error correcting code. The reconstructed key \(k' = Dec(X' \oplus w)\), where \(Dec()\) is the decoding function of the error correcting code. The important point to note here is that \(w\) plays the role of a syndrome. The error correcting code extracts the key \(k\) by correcting errors in \(X'\). This is clear when the formula is rewritten as \(k' = Dec(X' \oplus X \oplus Enc(k))\). Any remaining bits of the \(X' \oplus X\) if there are is corrected by \(Dec()\)
+\begin{figure}[!hbt]
+    % Center the figure.
+    \begin{center}
+    % Include the eps file, scale it such that it's width equals the column width. You can also put width=8cm for example...
+    \includegraphics[scale=0.45]{figs/COM.png}
+    % Create a subtitle for the figure.
+    \caption{Fuzzy Extractor}
+    % Define the label of the figure. It's good to use 'fig:title', so you know that the label belongs to a figure.
+    \label{fig:tf_plot}
+    \end{center}
+\end{figure}
 
-[insert fuzzy extractor image]
+One of the earliest implementations of fuzzy extractors is the Code Offset Method. \cite{COM} COM uses a error correcting code at the core of its construction. The helper data \(w = X \oplus Enc(k)\), where \(Enc()\) is the encoding function of the error correcting code. The reconstructed key \(k' = Dec(X' \oplus w)\), where \(Dec()\) is the decoding function of the error correcting code. The important point to note here is that \(w\) plays the role of a syndrome. The error correcting code extracts the key \(k\) by correcting errors in \(X'\). This is clear when the formula is rewritten as \(k' = Dec(X' \oplus X \oplus Enc(k))\). Any remaining bits of the \(X' \oplus X\), if there are any, is corrected by \(Dec()\)
 
 Using such a fuzzy extractor would also require sufficient entropy in the input \(X\). Schaller et al overcomes this problem by selecting equal number of \textbf{F} cells and \textbf{S} cells. The entropy in the input is required so that no information is leaked through the helper data \(w\).
 
-Another version of the COM scheme, Syndrome-COM or SCOM,\cite{COM} leverages syndrome decoding to use the input \(X\) itself as the cryptographic key. In this scheme the helper data \(w = Syn(X)\), where \(Syn()\) is the syndrome function. The reconstructed key \(k' = SynDec(w \oplus Sync(X'))\). The expression \(w \oplus Sync(X')\) equals \(Syn(X \oplus X')\), i.e., the syndrome of the error vector and \(SynDec()\) is teh syndrom decoder which corrects the error.
+Another version of the COM scheme, Syndrome-COM or SCOM,\cite{COM} leverages syndrome decoding to use the input \(X\) itself as the cryptographic key. In this scheme the helper data \(w = Syn(X)\), where \(Syn()\) is the syndrome function. The reconstructed key \(k' = SynDec(w \oplus Syn(X'))\). The expression \(w \oplus Syn(X')\) equals \(Syn(X \oplus X')\), i.e., the syndrome of the error vector and \(SynDec()\) is teh syndrom decoder which corrects the error.
 
 Schaller et al in their work use the same construction of SCOM with a modification of using a key derivation function on the reconstructed input \(X'\). This is done to ensure no bias from the PUF is transferred into the cryptographic key.
 
 Other constructions, of HDSs make use of concatenation of two linear codes \(C_{1} = [n_{1}, k_{1}, d_{1}]\) \( c_{2} = [n_{2}, k_{2}, d_{2}]\).\cite{HDS15} In this construction, Code \(C_{1}\) needs to maintain a high entropy, which directly translates into high cardinality or high \(k_{1}\). And, Code \(C_{2}\) needs to have a high error correction rate, whcih directly transaltes to higher distance \(d_{2}\).
 
 \section{Conclusion}
-This section summarizes the paper. Now the reader knows your work, you can go into detail a little bit more about the main aspects.
-
+This paper highlights why and how PUFs fufill the demands of hardware-intrinsic authentication. It explains the well known methods of implementing PUFs on DRAMs and the advantages of DRAM PUFs. It outlines the objectives a PUF implementation has to meet in order to be fit for use in authentication. It summarizes a simple lightweight protocol that can meet strict resource constraints for embedded processors. It also dives into the details of using PUFs for secure key storage using helper data systems (HDS) and summarizes different constructions for HDS.
 
 % Now we need a bibliography:
 \begin{thebibliography}{1}
@@ -359,7 +366,7 @@ This section summarizes the paper. Now the reader knows your work, you can go in
     J. Delvaux, D. Gu, D. Schellekens and I. Verbauwhede, "Helper Data Algorithms for PUF-Based Key Generation: Overview and Analysis," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 34, no. 6, pp. 889-902, June 2015, doi: 10.1109/TCAD.2014.2370531.
 
     \bibitem{COM}
-    Skoric, B., & Vreede, de, N. (2014). The spammed code offset method. IEEE Transactions on Information Forensics and Security, 9(5), 875-884. https://doi.org/10.1109/TIFS.2014.2312851
+    Skoric, B., \& Vreede, de, N. (2014). The spammed code offset method. IEEE Transactions on Information Forensics and Security, 9(5), 875-884. https://doi.org/10.1109/TIFS.2014.2312851
 
 \end{thebibliography}
 
