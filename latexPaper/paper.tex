@@ -201,7 +201,7 @@ There are different methods in which the process variations of DRAM can be lever
 \textbf{Refresh Pause:} In this method, the refresh of the DRAM cells is paused to allow random decaying of the data stored in memory. \cite{SUT18} \cite{XIO16} \cite{SCH19} \cite{MISK} For normal operation DRAM cells need to be refreshed i.e. the capacitors holding the charges need to be recharged due to leakage in the circuit. If the refresh is delayed some DRAM cells decay and thereby introduce a bit flip in the stored data. Under such operation, the DRAM can be used as a PUF where the data stored before the delaying refresh can be treated as the challenge and the one after the delay as the response. An alternate method exploits data remanence properties of the DRAM, where the DRAM is completely switched off and then the cells are read. \cite{REM}
 
 \section{Implementation Objectives}
-In order to analyze the various presented methods, measurements have to be made. Almost all surveyed papers use either hamming distance and fractional hamming distance or jaccard index for measuring the properties of the PUFs. The usage of one over the other is debatable although Xiong et al claims jaccard index to be a better metric because it takes into consideration only the bits that flip as opposed to fractional hamming distance which weighs all bits of the CRP equally. 
+In order to analyze the various presented methods, measurements have to be made. Almost all surveyed papers use either hamming distance and fractional hamming distance or jaccard index for measuring the properties of the PUFs.\cite{jaccard} The usage of one over the other is debatable although Xiong et al claims jaccard index to be a better metric because it takes into consideration only the bits that flip as opposed to fractional hamming distance which weighs all bits of the CRP equally. 
 
 \[ HD_{frac}(a,b) = \dfrac{HD(a,b)}{|a|} \quad\text{and}\quad J(a,b) = \dfrac{| a \bigcap b |}{| a \bigcup b |} \]
 
@@ -350,7 +350,8 @@ Schaller et al in their work use the same construction of SCOM with a modificati
 
 Other constructions, of HDSs make use of concatenation of two linear codes. \cite{HDS15}
 
-\[C_{1} = [n_{1}, k_{1}, d_{1}] \quad\text{and}\quad C_{2} = [n_{2}, k_{2}, d_{2}]\]
+\[C_{1} = [n_{1}, k_{1}, d_{1}]\] 
+\[C_{2} = [n_{2}, k_{2}, d_{2}]\]
 
 In this construction, Code \(C_{1}\) needs to maintain a high entropy, which directly translates into high cardinality or high \(k_{1}\). And, Code \(C_{2}\) needs to have a high error correction rate which directly translates to higher distance, \(d_{2}\).
 
@@ -384,8 +385,14 @@ This paper highlights why and how PUFs fulfill the demands of hardware-intrinsic
     \bibitem{MISK}
     J. Miskelly and M. O’Neill, "Fast DRAM PUFs on Commodity Devices," in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 39, no. 11, pp. 3566-3576, Nov. 2020, doi: 10.1109/TCAD.2020.3012218.
 
+    \bibitem{KELLER}
+    C. Keller et al., "Dynamic memory-based physically unclonable function for the generation of unique identifiers and true random numbers," 2014 IEEE International Symposium on Circuits and Systems (ISCAS), 2014, pp. 2740-2743, doi: 10.1109/ISCAS.2014.6865740.
+
     \bibitem{REM}
     Gutmann, P. Data remanence in semiconductor devices. In Proceedings of the 10th Conference on USENIX Security Symposium - Volume 10 (Berkeley, CA, USA, 2001), SSYM’01, USENIX Association.
+
+    \bibitem{jaccard}
+    Jaccard, P. (1901) étude Comparative de la distribuition florale dans une portion des Alpes et des Jura. Bulletin de la Société Vaudoise des Sciences Naturelles, 7, 547-579.
 
     \bibitem{COM}
     Skoric, B., \& Vreede, de, N. (2014). The spammed code offset method. IEEE Transactions on Information Forensics and Security, 9(5), 875-884. https://doi.org/10.1109/TIFS.2014.2312851
